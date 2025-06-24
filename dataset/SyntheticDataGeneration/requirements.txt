@@ -1,0 +1,12 @@
+transformers
+datasets
+sentence-transformers
+faiss-cpu
+snorkel
+shap
+uvicorn
+fastapi
+requests
+pandas
+pyarrow
+boto3

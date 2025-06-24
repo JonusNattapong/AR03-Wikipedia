@@ -1,0 +1,10 @@
+transformers==4.40.3
+sentencepiece
+langchain
+wikipedia
+datasets
+gradio
+torch
+pandas
+numpy
+evaluate

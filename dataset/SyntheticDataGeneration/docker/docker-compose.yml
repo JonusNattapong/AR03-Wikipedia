@@ -1,0 +1,25 @@
+version: "3.8"
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: nlp_api
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../.env
+    volumes:
+      - ../data:/app/data
+  airflow:
+    build:
+      context: ..
+      dockerfile: airflow/Dockerfile
+    container_name: airflow_scheduler
+    depends_on:
+      - api
+    env_file:
+      - ../.env
+    volumes:
+      - ../airflow/dags:/opt/airflow/dags
+      - ../data:/opt/airflow/data
