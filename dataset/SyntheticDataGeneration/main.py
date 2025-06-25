@@ -82,217 +82,137 @@ SCHEMA = {
         "confidence": "float",  # Confidence score of the result
     },
     "task_specific_fields": {
+        # Unique tasks only, no duplicates between English and Thai
         "Text Classification": {
-            "labels": "list[str]",  # Possible labels for classification
-            "confidence_scores": "list[float]",  # Confidence scores for each label
+            "id": "str",  # รหัสเฉพาะสำหรับข้อความ
+            "text": "str",  # ข้อความภาษาไทย
+            "label": "str"  # หมวดหมู่ของข้อความ เช่น การเมือง, บันเทิง, การศึกษา, อื่นๆ
+            # Removed duplicate 'labels' and 'confidence_scores' fields
         },
         "Token Classification": {
-            "entities": "list[dict]",  # Entities with start, end, and label
-            "confidence_scores": "list[float]",  # Confidence scores for each entity
+            "id": "str",
+            "text": "str",
+            "tokens": "list[dict]"  # รายการของ token และ label เช่น LOC, O
+            # Removed duplicate 'entities' and 'confidence_scores' fields
         },
         "Table Question Answering": {
-            "table": "dict",  # Table data for answering questions
-            "question": "str",  # Question to answer
-            "answer": "str",  # Answer extracted from the table
+            "id": "str",
+            "table": "list[list[str]]",
+            "question": "str",
+            "answer": "str"
+            # Removed duplicate 'table', 'question', 'answer' fields
         },
         "Question Answering": {
-            "context": "str",  # Context for answering questions
-            "answer": "str",  # Answer extracted from context
-            "confidence": "float",  # Confidence score of the answer
+            "id": "str",
+            "context": "str",
+            "question": "str",
+            "answer": "str"
+            # Removed duplicate 'context', 'answer', 'confidence' fields
         },
         "Zero-Shot Classification": {
-            "candidate_labels": "list[str]",  # Labels for zero-shot classification
-            "confidence_scores": "list[float]",  # Confidence scores for each label
+            "id": "str",
+            "text": "str",
+            "candidate_labels": "list[str]",
+            "label": "str"
+            # Removed duplicate 'confidence_scores' field
         },
         "Translation": {
-            "source_language": "str",  # Source language
-            "target_language": "str",  # Target language
-            "translated_text": "str",  # Translated text
+            "id": "str",
+            "source_text": "str",
+            "source_lang": "str",
+            "target_text": "str",
+            "target_lang": "str"
+            # Removed duplicate 'source_language', 'target_language', 'translated_text' fields
         },
         "Summarization": {
-            "max_length": "int",  # Maximum length of summary
-            "summary": "str",  # Generated summary
+            "id": "str",
+            "document": "str",
+            "summary": "str"
+            # Removed duplicate 'max_length' field
         },
         "Feature Extraction": {
-            "features": "list[float]",  # Extracted features
+            "id": "str",
+            "text": "str",
+            "embedding": "list[float]"
+            # Removed duplicate 'features' field
         },
         "Text Generation": {
-            "max_length": "int",  # Maximum length of generated text
-            "generated_text": "str",  # Generated text
+            "id": "str",
+            "prompt": "str",
+            "generated_text": "str"
+            # Removed duplicate 'max_length' field
         },
         "Text2Text Generation": {
-            "instruction": "str",  # Instruction for generation
-            "generated_text": "str",  # Generated text
+            "id": "str",
+            "input_text": "str",
+            "output_text": "str"
+            # Removed duplicate 'instruction', 'generated_text' fields
         },
         "Fill-Mask": {
-            "mask_token": "str",  # Mask token to fill
-            "predictions": "list[dict]",  # Predictions for the mask token
+            "id": "str",
+            "sentence": "str",
+            "options": "list[str]",
+            "answer": "str"
+            # Removed duplicate 'mask_token', 'predictions' fields
         },
         "Sentence Similarity": {
-            "sentences": "list[str]",  # Sentences to compare
-            "similarity_score": "float",  # Similarity score between sentences
+            "id": "str",
+            "sentence1": "str",
+            "sentence2": "str",
+            "similarity_score": "float"
         },
         "Table to Text": {
-            "table": "dict",  # Table data for text generation
-            "generated_text": "str",  # Generated text from table
+            "id": "str",
+            "table": "list[list[str]]",
+            "generated_text": "str"
         },
         "Multiple Choice": {
-            "choices": "list[str]",  # Multiple choice options
-            "selected_choice": "str",  # Selected choice
+            "id": "str",
+            "question": "str",
+            "options": "list[str]",
+            "answer": "str"
+            # Removed duplicate 'choices', 'selected_choice' fields
         },
         "Text Ranking": {
-            "documents": "list[str]",  # Documents to rank
-            "ranked_documents": "list[str]",  # Ranked documents
+            "id": "str",
+            "query": "str",
+            "candidates": "list[dict]"
+            # Removed duplicate 'documents', 'ranked_documents' fields
         },
         "Text Retrieval": {
-            "query": "str",  # Query for retrieval
-            "retrieved_documents": "list[str]",  # Retrieved documents
+            "id": "str",
+            "query": "str",
+            "retrieved_documents": "list[dict]"
+            # Removed duplicate 'retrieved_documents' field
         },
         "Thai Dialects Translation": {
-            "source_dialect": "str",  # Source dialect (e.g., เหนือ, อีสาน, กลาง, ใต้, ชาติพันธุ์)
-            "source_text": "str",  # Text in the source dialect
-            "target_language": "str",  # Target language (e.g., th, en, zh, ja)
-            "target_text": "str",  # Translated text
-            "topic": "str",  # Topic of the text
-            "emotion": "str",  # Emotion of the text (e.g., positive, neutral, negative)
+            "source_dialect": "str",
+            "source_text": "str",
+            "target_language": "str",
+            "target_text": "str",
+            "topic": "str",
+            "emotion": "str"
         },
         "Synthetic Persona": {
-            "personaId": "str",  # Unique identifier for the persona
-            "name": "str",  # Name of the persona
-            "age": "int",  # Age of the persona
-            "gender": "str",  # Gender of the persona
-            "background": "str",  # Background information
-            "goals": "str",  # Goals of the persona
-            "languageStyle": "str",  # Language style used by the persona
-            "traits": "list[str]",  # List of traits describing the persona
-            "dialogueSamples": "list[dict]",  # Dialogue samples with prompts and responses
+            "personaId": "str",
+            "name": "str",
+            "age": "int",
+            "gender": "str",
+            "background": "str",
+            "goals": "str",
+            "languageStyle": "str",
+            "traits": "list[str]",
+            "dialogueSamples": "list[dict]"
         },
         "ThaiSentimentIntentDataset": {
-            "id": "str",  # Unique identifier for the dataset entry
-            "text": "str",  # Text content of the entry
-            "sentiment": "str",  # Sentiment of the text (e.g., positive, neutral, negative, sarcasm, irony)
-            "intent": "str",  # Intent of the text (e.g., ขอข้อมูล, ร้องเรียน, ถามความรู้, แสดงความคิดเห็น, ขอความช่วยเหลือ)
-            "domain": "str"  # Domain of the text (e.g., การค้า, การศึกษา, การเมือง, บันเทิง, การแพทย์, ศาสนา)
-        },
+            "id": "str",
+            "text": "str",
+            "sentiment": "str",
+            "intent": "str",
+            "domain": "str"
+        }
     }
 }
-
-SCHEMA["task_specific_fields"].update({
-    "Text Classification": {
-        "id": "str",  # รหัสเฉพาะสำหรับข้อความ
-        "text": "str",  # ข้อความภาษาไทย
-        "label": "str"  # หมวดหมู่ของข้อความ เช่น การเมือง, บันเทิง, การศึกษา, อื่นๆ
-    },
-    "Token Classification": {
-        "id": "str",  # รหัสเฉพาะสำหรับข้อความ
-        "text": "str",  # ข้อความภาษาไทย
-        "tokens": "list[dict]"  # รายการของ token และ label เช่น LOC, O
-    },
-    "Table Question Answering": {
-        "id": "str",  # รหัสเฉพาะสำหรับคำถาม
-        "table": "list[list[str]]",  # ตารางข้อมูล
-        "question": "str",  # คำถาม
-        "answer": "str"  # คำตอบจากตาราง
-    },
-    "Question Answering": {
-        "id": "str",  # รหัสเฉพาะสำหรับคำถาม
-        "context": "str",  # บริบทของคำถาม
-        "question": "str",  # คำถาม
-        "answer": "str"  # คำตอบจากบริบท
-    },
-    "Zero-Shot Classification": {
-        "id": "str",  # รหัสเฉพาะสำหรับข้อความ
-        "text": "str",  # ข้อความ
-        "candidate_labels": "list[str]",  # รายการ label ที่เป็นไปได้
-        "label": "str"  # label ที่เลือก
-    },
-    "Translation": {
-        "id": "str",  # รหัสเฉพาะสำหรับข้อความ
-        "source_text": "str",  # ข้อความต้นฉบับ
-        "source_lang": "str",  # ภาษาต้นฉบับ
-        "target_text": "str",  # ข้อความที่แปล
-        "target_lang": "str"  # ภาษาที่แปล
-    },
-    "Summarization": {
-        "id": "str",  # รหัสเฉพาะสำหรับข้อความ
-        "document": "str",  # เนื้อความต้นฉบับ
-        "summary": "str"  # เนื้อความย่อ
-    },
-    "Feature Extraction": {
-        "id": "str",  # รหัสเฉพาะสำหรับข้อความ
-        "text": "str",  # ข้อความ
-        "embedding": "list[float]"  # เวกเตอร์ที่ดึงออกมา
-    },
-    "Text Generation": {
-        "id": "str",  # รหัสเฉพาะสำหรับข้อความ
-        "prompt": "str",  # คำสั่งหรือคำถาม
-        "generated_text": "str"  # ข้อความที่สร้างขึ้น
-    },
-    "Text2Text Generation": {
-        "id": "str",  # รหัสเฉพาะสำหรับข้อความ
-        "input_text": "str",  # ข้อความต้นฉบับ
-        "output_text": "str"  # ข้อความที่แปลง
-    },
-    "Fill-Mask": {
-        "id": "str",  # รหัสเฉพาะสำหรับข้อความ
-        "sentence": "str",  # ประโยคที่มีช่องว่าง
-        "options": "list[str]",  # ตัวเลือกคำเติม
-        "answer": "str"  # คำตอบที่เติม
-    },
-    "Sentence Similarity": {
-        "id": "str",  # รหัสเฉพาะสำหรับข้อความ
-        "sentence1": "str",  # ประโยคที่ 1
-        "sentence2": "str",  # ประโยคที่ 2
-        "similarity_score": "float"  # คะแนนความเหมือน
-    },
-    "Table to Text": {
-        "id": "str",  # รหัสเฉพาะสำหรับข้อความ
-        "table": "list[list[str]]",  # ตารางข้อมูล
-        "generated_text": "str"  # ข้อความที่สร้างจากตาราง
-    },
-    "Multiple Choice": {
-        "id": "str",  # รหัสเฉพาะสำหรับคำถาม
-        "question": "str",  # คำถาม
-        "options": "list[str]",  # ตัวเลือกคำตอบ
-        "answer": "str"  # คำตอบที่เลือก
-    },
-    "Text Ranking": {
-        "id": "str",  # รหัสเฉพาะสำหรับข้อความ
-        "query": "str",  # คำค้นหา
-        "candidates": "list[dict]"  # รายการข้อความและอันดับ
-    },
-    "Text Retrieval": {
-        "id": "str",  # รหัสเฉพาะสำหรับข้อความ
-        "query": "str",  # คำค้นหา
-        "retrieved_documents": "list[dict]"  # เอกสารที่ค้นพบ
-    },
-    "Thai Dialects Translation": {
-        "source_dialect": "str",  # ภาษาถิ่นต้นทาง เช่น เหนือ, อีสาน, กลาง, ใต้, ชาติพันธุ์
-        "source_text": "str",  # ข้อความในภาษาถิ่นต้นทาง
-        "target_language": "str",  # ภาษาปลายทาง เช่น th, en, zh, ja
-        "target_text": "str",  # ข้อความที่แปล
-        "topic": "str",  # หัวข้อของข้อความ
-        "emotion": "str"  # อารมณ์ของข้อความ เช่น positive, neutral, negative
-    },
-    "Synthetic Persona": {
-        "personaId": "str",  # รหัสเฉพาะสำหรับบุคคลจำลอง
-        "name": "str",  # ชื่อของบุคคลจำลอง
-        "age": "int",  # อายุของบุคคลจำลอง
-        "gender": "str",  # เพศของบุคคลจำลอง
-        "background": "str",  # ข้อมูลพื้นหลัง
-        "goals": "str",  # เป้าหมายของบุคคลจำลอง
-        "languageStyle": "str",  # รูปแบบการใช้ภาษาของบุคคลจำลอง
-        "traits": "list[str]",  # รายการลักษณะนิสัย
-        "dialogueSamples": "list[dict]",  # ตัวอย่างบทสนทนา
-    },
-    "ThaiSentimentIntentDataset": {
-        "id": "str",  # รหัสเฉพาะสำหรับข้อความ
-        "text": "str",  # ข้อความ
-        "sentiment": "str",  # อารมณ์ของข้อความ เช่น positive, neutral, negative, sarcasm, irony
-        "intent": "str",  # เจตนาของข้อความ เช่น ขอข้อมูล, ร้องเรียน, ถามความรู้, แสดงความคิดเห็น, ขอความช่วยเหลือ
-        "domain": "str"  # โดเมนของข้อความ เช่น การค้า, การศึกษา, การเมือง, บันเทิง, การแพทย์, ศาสนา
-    }
-})
 
 # ----------------- DeepSeek API Client -----------------
 class DeepseekClient:
