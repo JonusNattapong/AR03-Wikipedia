@@ -41,3 +41,17 @@ from datasets import load_dataset
 dataset = load_dataset("json", data_files="path/to/your/dataset.jsonl")
 
 print(dataset)
+
+from datasets import load_dataset
+
+# กำหนดโฟลเดอร์สำหรับเก็บไฟล์ cache
+cache_directory = "./your_dataset"
+
+ds = load_dataset(
+    "your_dataset_name/your_dataset_name",
+    "en",
+    cache_dir=cache_directory
+)
+
+# ลองดูขนาดชุดข้อมูล
+print(ds)
