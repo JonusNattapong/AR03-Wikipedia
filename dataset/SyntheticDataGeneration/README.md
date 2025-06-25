@@ -1,166 +1,123 @@
-# 🤖 NLP End-to-End Production-Ready Pipeline
+# 🤖 DeepSeek-Driven NLP Dataset Generator
 
-🧠 NLP Production Pipeline
-โครงการนี้เป็น NLP Pipeline แบบ End-to-End ที่ครอบคลุมการดึงข้อมูลจาก Wikipedia API, สร้างชุดข้อมูล Synthetic, จัดการ Weak Supervision, สร้าง RAG (Retrieval-Augmented Generation), และอธิบายผลโมเดล (Explainability) เพื่อทำงาน NLP ในการใช้งานจริง (production-ready)
-
-This project is a **fully automated NLP pipeline** that:
-- Fetches data from Wikipedia
-- Generates synthetic QA/summarization data
-- Builds a Retrieval-Augmented Generation (RAG) index
-- Applies weak supervision with Snorkel
-- Runs explainable AI (SHAP/LIME) for bias and error analysis
-- Serves inference via FastAPI
-- Orchestrates workflows using Airflow
-- Deploys as containers using Docker Compose
-
-## 🎯 Features
-✅ Parallel data fetching from Wikipedia  
-✅ Synthetic data augmentation  
-✅ Weak supervision for labeling  
-✅ RAG-based retrieval (FAISS)  
-✅ Explainability with SHAP/LIME  
-✅ FastAPI for real-time inference  
-✅ Airflow DAGs for scheduling & automation  
-✅ Scalable and cloud-ready with Docker
+This module provides a **schema-based, extensible NLP dataset and prompt generation system** using only the DeepSeek API (no Hugging Face or local models). It supports multiple NLP tasks (including Thai), JSONL/CSV export, and both web (Gradio) and REST API interfaces. Wikipedia can be used as a knowledge base for context via DeepSeek function calling.
 
 ---
 
-## 🗂️ Project Structure
+## 🚀 Features
+
+- **DeepSeek API only**: No Hugging Face or local model dependencies
+- **Schema-driven**: Easily extensible for new NLP tasks and fields
+- **Supports Thai and multilingual tasks**
+- **Wikipedia integration**: Use Wikipedia content as context for dataset generation
+- **Gradio web UI**: Select task, number of rows, export format, API key, model, temperature, and Wikipedia query
+- **REST API**: FastAPI endpoints for programmatic access
+- **Robust error handling**: Retries, JSON decode fixes, and user feedback
+- **Export**: JSONL (with `ensure_ascii=False` for readable Thai) and CSV
+- **Task display**: View all available tasks in the UI
+- **No local model code**: All generation is via DeepSeek API
+
+---
+
+## 🗂️ Structure
 
 ```
-
-project/
-├── app/
-│   ├── main.py            # FastAPI service & pipeline
-│   ├── requirements.txt   # Application dependencies
-│   ├── config.py           # Application config
-│   ├── utils.py            # Shared utility functions
-│   ├── rag.py              # RAG setup
-│   ├── supervision.py      # Weak supervision logic
-│   ├── synthetic.py        # Synthetic data generation
-│   ├── explain.py          # SHAP explainability
-├── airflow/
-│   ├── dags/
-│   │   └── nlp\_pipeline.py # Airflow DAGs for automation
-│   ├── requirements.txt    # Airflow-specific dependencies
-│   ├── Dockerfile
-├── docker/
-│   ├── Dockerfile          # Application image
-│   ├── docker-compose.yml  # Compose setup for app + Airflow
-├── data/                   # Input & output data
-├── .env                    # Secrets and credentials
-├── README.md               # Documentation
-
-````
+dataset/SyntheticDataGeneration/
+├── main.py         # Main logic, DeepSeek API, schema, Gradio, Wikipedia, export
+├── config.py       # (Optional) Configurations
+├── utils.py        # (Optional) Utilities
+├── rag.py          # (Optional) RAG logic
+├── supervision.py  # (Optional) Weak supervision
+├── synthetic.py    # (Optional) Synthetic data helpers
+├── explain.py      # (Optional) Explainability
+├── requirements.txt
+├── README.md       # (This file)
+```
 
 ---
 
-## 🐳 Getting Started
+## 🧑‍💻 Usage
 
-### 1️⃣ Clone the repo
-```bash
-git clone https://github.com/your_user/your_project.git
-cd your_project
-````
-
-### 2️⃣ Build & Run with Docker Compose
+### 1️⃣ Install dependencies
 
 ```bash
-cd docker
-docker-compose up --build
+pip install -r requirements.txt
 ```
 
-### 3️⃣ Test the API
+### 2️⃣ Set your DeepSeek API key
 
-Once up, go to:
-
+Create a `.env` file with:
 ```
-http://localhost:8000/docs
-```
-
-You can POST a request to `/generate/` to get generated output.
-
-### 4️⃣ Access Airflow UI
-
-```
-http://localhost:8080
+DEEPSEEK_API_KEY=your_deepseek_api_key
 ```
 
-(default username/password: `airflow`/`airflow`)
-Trigger the `nlp_pipeline` DAG to orchestrate the pipeline.
+Or provide the key in the Gradio UI.
 
----
-
-## 🧠 Usage
-
-**Example API request**:
+### 3️⃣ Run the Gradio web interface
 
 ```bash
-curl -X POST http://localhost:8000/generate/ \
-  -H "Content-Type: application/json" \
-  -d '{"input_text": "Please summarize AI"}'
+python main.py
 ```
 
-**Example DAG**: `nlp_pipeline` DAG will:
+- Select your task, number of rows, export format, and Wikipedia query.
+- Enter your DeepSeek API key and select model/temperature.
+- Click **Generate and Export**.
+- Download the generated dataset (JSONL or CSV, with proper Thai encoding).
 
-* Fetch Wikipedia articles
-* Generate synthetic data
-* Weakly label the data
-* Save datasets & embeddings
-* Run SHAP explainability
-* Serve via FastAPI
+### 4️⃣ REST API (FastAPI)
 
----
-
-## 🧪 Running Locally (without Docker)
-
-You can also run the components manually:
-
-1. Install dependencies:
-
-   ```bash
-   pip install -r app/requirements.txt
-   ```
-2. Run the API:
-
-   ```bash
-   python app/main.py
-   ```
-3. Run Airflow:
-
-   ```bash
-   airflow standalone
-   ```
+You can also run the FastAPI server for programmatic access (see `main.py` for details).
 
 ---
 
-## 🔑 Configuration
+## 📝 Example Tasks
 
-Sensitive credentials go into `.env`.
-Set up your `WIKIPEDIA_API_URL`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, etc.
+- Text Classification (Thai)
+- Summarization
+- Question Answering
+- Translation (Thai dialects, multilingual)
+- Token Classification
+- Table QA
+- Multiple Choice
+- Text Generation
+- Sentence Similarity
+- ...and more (see UI for full list)
 
 ---
 
-## 🚀 CI/CD & Deployment
+## 🌏 Wikipedia Integration
 
-* **CI/CD**: Add GitHub Actions (`.github/workflows/ci.yml`)
-* **Cloud deployment**: Push built images to container registries (AWS ECR/GCP Artifact Registry), deploy on Kubernetes or ECS
-* **Scaling**: Horizontal scaling via container orchestrators
-* **Monitoring**: Add Prometheus/Grafana for metrics and alerting
+- Enter a Wikipedia query in the UI to use Wikipedia content as context for dataset generation.
+- The system will fetch and inject relevant Wikipedia text into the DeepSeek prompt.
 
 ---
 
-## 🤝 Contributing
+## ⚡ Export
 
-Contributions are welcome! Please open issues or submit pull requests for enhancements, bug fixes, or new features.
+- **JSONL**: Unicode/Thai preserved (`ensure_ascii=False`)
+- **CSV**: UTF-8 encoding
+
+---
+
+## 🛡️ Error Handling
+
+- Retries on DeepSeek API errors
+- JSON decode error fixes (auto-extracts JSON from model output)
+- User feedback in UI for errors and warnings
+
+---
+
+## 🧩 Extending
+
+- Add new tasks or fields by editing the `SCHEMA` in `main.py`
+- UI and API will reflect new tasks automatically
 
 ---
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License
 
 ---
 
-💡 **Have questions?**
-Reach out via GitHub Issues or Discussions — we’d love your feedback!
+**Questions?** Open an issue or discussion!
