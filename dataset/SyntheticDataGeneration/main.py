@@ -12,6 +12,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import time
 from typing import List, Dict, Tuple
+from schema import SCHEMA
 
 load_dotenv()
 
@@ -29,6 +30,9 @@ WIKI_URL = "https://en.wikipedia.org/w/api.php"
 
 # Initialize OpenAI client for DeepSeek API
 client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url="https://api.deepseek.com")
+
+OUTPUT_DIR = r"D:\Github\AR03-Wikipedia\output"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
 # ===========================
@@ -71,153 +75,6 @@ def deepseek_chat(messages, model="deepseek-chat", stream=False):
     except Exception as e:
         print(f"Error interacting with DeepSeek API: {e}")
         return None
-
-
-# ===========================
-# REFINED SCHEMA DESIGN
-# ===========================
-SCHEMA = {
-    "task": "str",  # Task name (e.g., Text Classification, Summarization)
-    "input": "str",  # Input text or data
-    "output": "str",  # Expected output or generated result
-    "metadata": {
-        "model": "str",  # Model used for the task
-        "parameters": "dict",  # Parameters used for the task
-        "timestamp": "str",  # Timestamp of execution
-        "confidence": "float",  # Confidence score of the result
-    },
-    "task_specific_fields": {
-        # Unique tasks only, no duplicates between English and Thai
-        "Text Classification": {
-            "id": "str",  # รหัสเฉพาะสำหรับข้อความ
-            "text": "str",  # ข้อความภาษาไทย
-            "label": "str",  # หมวดหมู่ของข้อความ เช่น การเมือง, บันเทิง, การศึกษา, อื่นๆ
-            # Removed duplicate 'labels' and 'confidence_scores' fields
-        },
-        "Token Classification": {
-            "id": "str",
-            "text": "str",
-            "tokens": "list[dict]",  # รายการของ token และ label เช่น LOC, O
-            # Removed duplicate 'entities' and 'confidence_scores' fields
-        },
-        "Table Question Answering": {
-            "id": "str",
-            "table": "list[list[str]]",
-            "question": "str",
-            "answer": "str",
-            # Removed duplicate 'table', 'question', 'answer' fields
-        },
-        "Question Answering": {
-            "id": "str",
-            "context": "str",
-            "question": "str",
-            "answer": "str",
-            # Removed duplicate 'context', 'answer', 'confidence' fields
-        },
-        "Zero-Shot Classification": {
-            "id": "str",
-            "text": "str",
-            "candidate_labels": "list[str]",
-            "label": "str",
-            # Removed duplicate 'confidence_scores' field
-        },
-        "Translation": {
-            "id": "str",
-            "source_text": "str",
-            "source_lang": "str",
-            "target_text": "str",
-            "target_lang": "str",
-            # Removed duplicate 'source_language', 'target_language', 'translated_text' fields
-        },
-        "Summarization": {
-            "id": "str",
-            "document": "str",
-            "summary": "str",
-            # Removed duplicate 'max_length' field
-        },
-        "Feature Extraction": {
-            "id": "str",
-            "text": "str",
-            "embedding": "list[float]",
-            # Removed duplicate 'features' field
-        },
-        "Text Generation": {
-            "id": "str",
-            "prompt": "str",
-            "generated_text": "str",
-            # Removed duplicate 'max_length' field
-        },
-        "Text2Text Generation": {
-            "id": "str",
-            "input_text": "str",
-            "output_text": "str",
-            # Removed duplicate 'instruction', 'generated_text' fields
-        },
-        "Fill-Mask": {
-            "id": "str",
-            "sentence": "str",
-            "options": "list[str]",
-            "answer": "str",
-            # Removed duplicate 'mask_token', 'predictions' fields
-        },
-        "Sentence Similarity": {
-            "id": "str",
-            "sentence1": "str",
-            "sentence2": "str",
-            "similarity_score": "float",
-        },
-        "Table to Text": {
-            "id": "str",
-            "table": "list[list[str]]",
-            "generated_text": "str",
-        },
-        "Multiple Choice": {
-            "id": "str",
-            "question": "str",
-            "options": "list[str]",
-            "answer": "str",
-            # Removed duplicate 'choices', 'selected_choice' fields
-        },
-        "Text Ranking": {
-            "id": "str",
-            "query": "str",
-            "candidates": "list[dict]",
-            # Removed duplicate 'documents', 'ranked_documents' fields
-        },
-        "Text Retrieval": {
-            "id": "str",
-            "query": "str",
-            "retrieved_documents": "list[dict]",
-            # Removed duplicate 'retrieved_documents' field
-        },
-        "Thai Dialects Translation": {
-            "source_dialect": "str",
-            "source_text": "str",
-            "target_language": "str",
-            "target_text": "str",
-            "topic": "str",
-            "emotion": "str",
-        },
-        "Synthetic Persona": {
-            "personaId": "str",
-            "name": "str",
-            "age": "int",
-            "gender": "str",
-            "background": "str",
-            "goals": "str",
-            "languageStyle": "str",
-            "traits": "list[str]",
-            "dialogueSamples": "list[dict]",
-        },
-        "ThaiSentimentIntentDataset": {
-            "id": "str",
-            "text": "str",
-            "sentiment": "str",
-            "intent": "str",
-            "domain": "str",
-        },
-    },
-}
 
 
 # ----------------- DeepSeek API Client -----------------
@@ -381,12 +238,11 @@ def gradio_interface():
             value="deepseek-chat",
         )
 
-        tasks = {
-            task: f"Task: {task}" for task in SCHEMA["task_specific_fields"].keys()
-        }
-
+        all_tasks = get_all_tasks()
         task_name = gr.Dropdown(
-            label="Select Task", choices=list(tasks.keys()), value="Text Classification"
+            label="Select Task",
+            choices=all_tasks,
+            value=all_tasks[0] if all_tasks else None
         )
         rows = gr.Number(label="Number of Rows", value=10)
         file_format = gr.Radio(
@@ -420,8 +276,10 @@ def gradio_interface():
         # --- Schema Editor UI ---
         schema_editor = gr.Code(
             label="Edit Task Schema (JSON)",
-            value=json.dumps(SCHEMA["task_specific_fields"], ensure_ascii=False, indent=2),
-            language="json"
+            value=json.dumps(
+                SCHEMA["task_specific_fields"], ensure_ascii=False, indent=2
+            ),
+            language="json",
         )
         save_schema_btn = gr.Button("Save Schema")
         reload_schema_btn = gr.Button("Reload Schema")
@@ -435,8 +293,14 @@ def gradio_interface():
         )
         single_task_editor = gr.Code(
             label="Edit Selected Task Schema (JSON)",
-            value=json.dumps(SCHEMA["task_specific_fields"][list(SCHEMA["task_specific_fields"].keys())[0]], ensure_ascii=False, indent=2),
-            language="json"
+            value=json.dumps(
+                SCHEMA["task_specific_fields"][
+                    list(SCHEMA["task_specific_fields"].keys())[0]
+                ],
+                ensure_ascii=False,
+                indent=2,
+            ),
+            language="json",
         )
         save_task_btn = gr.Button("Save Task Schema")
         task_schema_status = gr.Textbox(label="Task Schema Status", interactive=False)
@@ -453,19 +317,27 @@ def gradio_interface():
 
         def reload_schema():
             import os
+
             if os.path.exists("custom_schema.json"):
                 try:
                     with open("custom_schema.json", "r", encoding="utf-8") as f:
                         loaded = json.load(f)
                     SCHEMA["task_specific_fields"] = loaded
-                    return json.dumps(loaded, ensure_ascii=False, indent=2), "[INFO] Schema reloaded."
+                    return (
+                        json.dumps(loaded, ensure_ascii=False, indent=2),
+                        "[INFO] Schema reloaded.",
+                    )
                 except Exception as e:
                     return gr.update(), f"[ERROR] Failed to reload schema: {e}"
             else:
                 return gr.update(), "[WARN] No custom schema file found."
 
         def update_task_editor(selected_task):
-            return json.dumps(SCHEMA["task_specific_fields"][selected_task], ensure_ascii=False, indent=2)
+            return json.dumps(
+                SCHEMA["task_specific_fields"][selected_task],
+                ensure_ascii=False,
+                indent=2,
+            )
 
         def save_single_task_schema(selected_task, new_task_json):
             try:
@@ -473,7 +345,9 @@ def gradio_interface():
                 SCHEMA["task_specific_fields"][selected_task] = parsed
                 # Save the whole schema to file
                 with open("custom_schema.json", "w", encoding="utf-8") as f:
-                    json.dump(SCHEMA["task_specific_fields"], f, ensure_ascii=False, indent=2)
+                    json.dump(
+                        SCHEMA["task_specific_fields"], f, ensure_ascii=False, indent=2
+                    )
                 return "[INFO] Task schema saved and loaded."
             except Exception as e:
                 return f"[ERROR] Failed to save task schema: {e}"
@@ -487,24 +361,50 @@ def gradio_interface():
         )
         test_button.click(test_deepseek_api, [api_key], output_message)
         generate_button.click(
-            generate_and_export_with_wikipedia,
-            [
-                api_key,
-                model_name,
-                task_name,
-                rows,
-                file_format,
-                wiki_query,
-                temperature,
-            ],
+            lambda api_key, model_name, task_name, rows, file_format, wiki_query, temperature: generate_and_export_with_wikipedia(
+                api_key, model_name, task_name, rows, file_format, wiki_query, temperature
+            ),
+            [api_key, model_name, task_name, rows, file_format, wiki_query, temperature],
             output_message,
         )
         save_schema_btn.click(save_schema, inputs=schema_editor, outputs=schema_status)
-        reload_schema_btn.click(lambda: reload_schema(), inputs=None, outputs=[schema_editor, schema_status])
-        edit_task_dropdown.change(update_task_editor, inputs=edit_task_dropdown, outputs=single_task_editor)
-        save_task_btn.click(save_single_task_schema, inputs=[edit_task_dropdown, single_task_editor], outputs=task_schema_status)
+        reload_schema_btn.click(
+            lambda: reload_schema(), inputs=None, outputs=[schema_editor, schema_status]
+        )
+        edit_task_dropdown.change(
+            update_task_editor, inputs=edit_task_dropdown, outputs=single_task_editor
+        )
+        save_task_btn.click(
+            save_single_task_schema,
+            inputs=[edit_task_dropdown, single_task_editor],
+            outputs=task_schema_status,
+        )
 
     demo.launch()
+
+
+def get_all_tasks():
+    import os
+    import json
+    from schema import SCHEMA
+    tasks = list(SCHEMA["task_specific_fields"].keys())
+    if os.path.exists("custom_schema.json"):
+        with open("custom_schema.json", "r", encoding="utf-8") as f:
+            custom = json.load(f)
+        tasks += [k for k in custom.keys() if k not in tasks]
+    return tasks
+
+
+def get_task_schema(task_name):
+    import os
+    import json
+    from schema import SCHEMA
+    if os.path.exists("custom_schema.json"):
+        with open("custom_schema.json", "r", encoding="utf-8") as f:
+            custom = json.load(f)
+        if task_name in custom:
+            return custom[task_name]
+    return SCHEMA["task_specific_fields"].get(task_name, {})
 
 
 def generate_and_export_with_wikipedia(
@@ -522,7 +422,7 @@ def generate_and_export_with_wikipedia(
     client = DeepseekClient(api_key, model=model_name, temperature=temp_value)
     task_schema = {
         "name": task_name,
-        "schema": {"fields": SCHEMA["task_specific_fields"].get(task_name, {})},
+        "schema": {"fields": get_task_schema(task_name)},
     }
     entries = []
     prompt = (
@@ -549,7 +449,9 @@ def generate_and_export_with_wikipedia(
     valid_entries, issues = validate_data_quality(entries, task_schema)
     if issues:
         return f"[WARN] Found issues: {issues}"
-    output_file = f"output_{task_name.lower().replace(' ', '_')}.{file_format}"
+    output_file = os.path.join(
+        OUTPUT_DIR, f"output_{task_name.lower().replace(' ', '_')}.{file_format}"
+    )
     if file_format == "jsonl":
         export_to_jsonl(valid_entries, output_file)
     elif file_format == "csv":

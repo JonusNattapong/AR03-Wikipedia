@@ -1,0 +1,30 @@
+{
+  "Thai Legal Reasoning QA": {
+    "id": "str",
+    "context": "str",
+    "question": "str",
+    "answer": "str",
+    "reasoning_steps": "list[str]",
+    "law_reference": "str"
+  },
+  "Thai Medical Diagnosis": {
+    "id": "str",
+    "symptoms": "str",
+    "diagnosis": "str",
+    "recommendation": "str",
+    "confidence": "float"
+  },
+  "Thai Product Comparison": {
+    "id": "str",
+    "product_a": "str",
+    "product_b": "str",
+    "criteria": "list[str]",
+    "comparison_result": "str"
+  },
+  "Thai Academic Abstract QA": {
+    "id": "str",
+    "abstract": "str",
+    "question": "str",
+    "answer": "str"
+  }
+}
