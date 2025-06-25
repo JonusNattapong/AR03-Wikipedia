@@ -1,0 +1,116 @@
+{
+  "Text Classification": {
+    "id": "str",
+    "text": "str",
+    "label": "str"
+  },
+  "Token Classification": {
+    "id": "str",
+    "text": "str",
+    "tokens": "list[dict]"
+  },
+  "Table Question Answering": {
+    "id": "str",
+    "table": "list[list[str]]",
+    "question": "str",
+    "answer": "str"
+  },
+  "Question Answering": {
+    "id": "str",
+    "context": "str",
+    "question": "str",
+    "answer": "str"
+  },
+  "Zero-Shot Classification": {
+    "id": "str",
+    "text": "str",
+    "candidate_labels": "list[str]",
+    "label": "str"
+  },
+  "Translation": {
+    "id": "str",
+    "source_text": "str",
+    "source_lang": "str",
+    "target_text": "str",
+    "target_lang": "str"
+  },
+  "Summarization": {
+    "id": "str",
+    "document": "str",
+    "summary": "str"
+  },
+  "Feature Extraction": {
+    "id": "str",
+    "text": "str",
+    "embedding": "list[float]"
+  },
+  "Text Generation": {
+    "id": "str",
+    "prompt": "str",
+    "generated_text": "str"
+  },
+  "Text2Text Generation": {
+    "id": "str",
+    "input_text": "str",
+    "output_text": "str"
+  },
+  "Fill-Mask": {
+    "id": "str",
+    "sentence": "str",
+    "options": "list[str]",
+    "answer": "str"
+  },
+  "Sentence Similarity": {
+    "id": "str",
+    "sentence1": "str",
+    "sentence2": "str",
+    "similarity_score": "float"
+  },
+  "Table to Text": {
+    "id": "str",
+    "table": "list[list[str]]",
+    "generated_text": "str"
+  },
+  "Multiple Choice": {
+    "id": "str",
+    "question": "str",
+    "options": "list[str]",
+    "answer": "str"
+  },
+  "Text Ranking": {
+    "id": "str",
+    "query": "str",
+    "candidates": "list[dict]"
+  },
+  "Text Retrieval": {
+    "id": "str",
+    "query": "str",
+    "retrieved_documents": "list[dict]"
+  },
+  "Thai Dialects Translation": {
+    "source_dialect": "str",
+    "source_text": "str",
+    "target_language": "str",
+    "target_text": "str",
+    "topic": "str",
+    "emotion": "str"
+  },
+  "Synthetic Persona": {
+    "personaId": "str",
+    "name": "str",
+    "age": "int",
+    "gender": "str",
+    "background": "str",
+    "goals": "str",
+    "languageStyle": "str",
+    "traits": "list[str]",
+    "dialogueSamples": "list[dict]"
+  },
+  "ThaiSentimentIntentDataset": {
+    "id": "str",
+    "text": "str",
+    "sentiment": "str",
+    "intent": "str",
+    "domain": "str"
+  }
+}

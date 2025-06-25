@@ -417,6 +417,67 @@ def gradio_interface():
         tasks_button = gr.Button("Show Available Tasks")
         tasks_output = gr.Textbox(label="Available Tasks")
 
+        # --- Schema Editor UI ---
+        schema_editor = gr.Code(
+            label="Edit Task Schema (JSON)",
+            value=json.dumps(SCHEMA["task_specific_fields"], ensure_ascii=False, indent=2),
+            language="json"
+        )
+        save_schema_btn = gr.Button("Save Schema")
+        reload_schema_btn = gr.Button("Reload Schema")
+        schema_status = gr.Textbox(label="Schema Status", interactive=False)
+
+        # --- Single Task Schema Editor UI ---
+        edit_task_dropdown = gr.Dropdown(
+            label="Select Task to Edit",
+            choices=list(SCHEMA["task_specific_fields"].keys()),
+            value=list(SCHEMA["task_specific_fields"].keys())[0],
+        )
+        single_task_editor = gr.Code(
+            label="Edit Selected Task Schema (JSON)",
+            value=json.dumps(SCHEMA["task_specific_fields"][list(SCHEMA["task_specific_fields"].keys())[0]], ensure_ascii=False, indent=2),
+            language="json"
+        )
+        save_task_btn = gr.Button("Save Task Schema")
+        task_schema_status = gr.Textbox(label="Task Schema Status", interactive=False)
+
+        def save_schema(new_schema_json):
+            try:
+                parsed = json.loads(new_schema_json)
+                with open("custom_schema.json", "w", encoding="utf-8") as f:
+                    json.dump(parsed, f, ensure_ascii=False, indent=2)
+                SCHEMA["task_specific_fields"] = parsed
+                return "[INFO] Schema saved and loaded."
+            except Exception as e:
+                return f"[ERROR] Failed to save schema: {e}"
+
+        def reload_schema():
+            import os
+            if os.path.exists("custom_schema.json"):
+                try:
+                    with open("custom_schema.json", "r", encoding="utf-8") as f:
+                        loaded = json.load(f)
+                    SCHEMA["task_specific_fields"] = loaded
+                    return json.dumps(loaded, ensure_ascii=False, indent=2), "[INFO] Schema reloaded."
+                except Exception as e:
+                    return gr.update(), f"[ERROR] Failed to reload schema: {e}"
+            else:
+                return gr.update(), "[WARN] No custom schema file found."
+
+        def update_task_editor(selected_task):
+            return json.dumps(SCHEMA["task_specific_fields"][selected_task], ensure_ascii=False, indent=2)
+
+        def save_single_task_schema(selected_task, new_task_json):
+            try:
+                parsed = json.loads(new_task_json)
+                SCHEMA["task_specific_fields"][selected_task] = parsed
+                # Save the whole schema to file
+                with open("custom_schema.json", "w", encoding="utf-8") as f:
+                    json.dump(SCHEMA["task_specific_fields"], f, ensure_ascii=False, indent=2)
+                return "[INFO] Task schema saved and loaded."
+            except Exception as e:
+                return f"[ERROR] Failed to save task schema: {e}"
+
         tasks_button.click(
             lambda: "\n".join(
                 [f"{task}: {description}" for task, description in tasks.items()]
@@ -438,6 +499,10 @@ def gradio_interface():
             ],
             output_message,
         )
+        save_schema_btn.click(save_schema, inputs=schema_editor, outputs=schema_status)
+        reload_schema_btn.click(lambda: reload_schema(), inputs=None, outputs=[schema_editor, schema_status])
+        edit_task_dropdown.change(update_task_editor, inputs=edit_task_dropdown, outputs=single_task_editor)
+        save_task_btn.click(save_single_task_schema, inputs=[edit_task_dropdown, single_task_editor], outputs=task_schema_status)
 
     demo.launch()
 
